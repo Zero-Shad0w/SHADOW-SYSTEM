@@ -85,4 +85,4 @@ Do not remove or break the current Windows Node.js + SQLite application. Keep it
 
 ## Current status
 
-This document records the agreed architecture and implementation sequence. It is not an APK and does not claim that the current PWA backend already runs natively on Android. The native database adapter and Android project still need implementation and testing.
+A first Capacitor Android wrapper and local-mode API adapter have now been added under `android-native/`. The prototype uses persistent IndexedDB inside the Android WebView to prove the local-first workflows and enable an initial debug APK build. This is not yet the planned native SQLite adapter. The Windows Node.js + SQLite implementation remains unchanged. Native SQLite migration, scheduled Android notifications, conflict-safe cloud sync, device-level backup/restore testing, and full Android QA remain outstanding before a production release.
