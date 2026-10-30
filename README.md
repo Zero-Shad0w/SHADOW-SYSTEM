@@ -45,6 +45,10 @@ See [CLOUD-SYNC-SETUP.md](CLOUD-SYNC-SETUP.md) for the workflow and limitations.
 - Stop the server, extract the new release over the app files, keep `data`, run `START-SHADOW-SYSTEM.bat`, then hard-refresh the browser with `Ctrl+Shift+R`.
 - Use Settings → Download full backup before significant changes or cloud restores.
 
+## Native Android development
+
+The agreed native Android direction is documented in [ANDROID-NATIVE-PLAN.md](ANDROID-NATIVE-PLAN.md). Android is being designed as a local-first Capacitor application with on-device SQLite. No Android APK is available yet: the current PWA depends on the Windows Node.js API, so a native SQLite adapter and offline Android implementation must be completed and tested before packaging. Optional cloud account creation and synchronization will remain disabled by default and must preserve existing local data when enabled.
+
 ## Development checks
 ```bash
 node --check server.js
