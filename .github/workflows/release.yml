@@ -4,10 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'server.js'
-      - 'package.json'
-      - 'public/**'
-      - 'supabase/**'
+      - 'source/**'
       - '.github/workflows/release.yml'
   workflow_dispatch:
 
@@ -21,23 +18,31 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Validate application source
+      - name: Extract uploaded application archive
         run: |
-          test -f server.js || { echo "::error::server.js is missing from the repository."; exit 1; }
-          test -f public/app.js || { echo "::error::public/app.js is missing from the repository."; exit 1; }
-          test -f public/index.html || { echo "::error::public/index.html is missing from the repository."; exit 1; }
-          test -f START-SHADOW-SYSTEM.bat || { echo "::error::START-SHADOW-SYSTEM.bat is missing from the repository."; exit 1; }
+          set -euo pipefail
+          ARCHIVE="source/SHADOW-SYSTEM-v0.10-CLOUD-SYNC.zip"
+          test -f "$ARCHIVE" || { echo "::error::Upload the supplied ZIP to $ARCHIVE first."; exit 1; }
+          mkdir -p workspace
+          unzip -q "$ARCHIVE" -d workspace
+          APP="workspace/shadow-system"
+          test -f "$APP/server.js" || { echo "::error::The archive does not contain shadow-system/server.js."; exit 1; }
+          test -f "$APP/public/app.js" || { echo "::error::The archive does not contain public/app.js."; exit 1; }
+          test -f "$APP/public/index.html" || { echo "::error::The archive does not contain public/index.html."; exit 1; }
+          test -f "$APP/START-SHADOW-SYSTEM.bat" || { echo "::error::START-SHADOW-SYSTEM.bat is missing."; exit 1; }
 
       - name: Check JavaScript syntax
         run: |
-          node --check server.js
-          node --check public/app.js
-          node --check public/service-worker.js
+          node --check workspace/shadow-system/server.js
+          node --check workspace/shadow-system/public/app.js
+          node --check workspace/shadow-system/public/service-worker.js
 
       - name: Package Windows / Android PWA release
         run: |
-          mkdir -p dist/shadow-system
-          cp -R server.js package.json README.md CLOUD-SYNC-SETUP.md START-SHADOW-SYSTEM.bat INSTALL-SHADOW-SYSTEM.bat public supabase dist/shadow-system/
+          set -euo pipefail
+          mkdir -p dist
+          cp -R workspace/shadow-system dist/shadow-system
+          rm -rf dist/shadow-system/data
           mkdir -p dist/shadow-system/data
           printf '%s\n' 'The SQLite database is created automatically on first launch. Keep this folder when updating an existing installation.' > dist/shadow-system/data/README.txt
           cd dist
