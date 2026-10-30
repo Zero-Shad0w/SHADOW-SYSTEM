@@ -45,6 +45,23 @@ See [CLOUD-SYNC-SETUP.md](CLOUD-SYNC-SETUP.md) for the workflow and limitations.
 - Stop the server, extract the new release over the app files, keep `data`, run `START-SHADOW-SYSTEM.bat`, then hard-refresh the browser with `Ctrl+Shift+R`.
 - Use Settings → Download full backup before significant changes or cloud restores.
 
+## Native Android development
+
+The agreed native Android direction is documented in [ANDROID-NATIVE-PLAN.md](ANDROID-NATIVE-PLAN.md). Android is being designed as a local-first Capacitor application with on-device SQLite. No Android APK is available yet: the current PWA depends on the Windows Node.js API, so a native SQLite adapter and offline Android implementation must be completed and tested before packaging. Optional cloud account creation and synchronization will remain disabled by default and must preserve existing local data when enabled.
+
+## Native Android build (in progress)
+
+A separate GitHub Actions workflow at `.github/workflows/android.yml` builds a **debug APK** from the existing v0.10 application source and the Capacitor wrapper in `android-native/`. It runs on pushes to the `android-native-local-first` branch or by manual dispatch. The APK is published as a 30-day Actions artifact named `SHADOW-SYSTEM-Android-debug`.
+
+The current Android prototype:
+- Opens directly into a local Hunter profile without registration.
+- Stores the app's local state in the Android WebView's persistent IndexedDB store and works without a network connection for core training data.
+- Seeds the exercise library on first launch.
+- Keeps cloud features disabled by default; users must explicitly enable them in Settings before cloud login/upload/restore controls are usable.
+- Keeps the existing Windows Node.js + SQLite app unchanged.
+
+**Important:** this is an initial native APK prototype, not the final production release. Android local persistence currently uses IndexedDB, not the planned native SQLite adapter. The current cloud feature is still manual snapshot upload/restore, not conflict-safe automatic multi-device sync. Native scheduled notifications, device-level backup testing, migration to native SQLite, and full Android device QA remain before a production-ready release. Do not use a cloud restore unless you intend to replace the corresponding local training lists; export a backup first.
+
 ## Development checks
 ```bash
 node --check server.js

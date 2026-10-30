@@ -1,0 +1,17 @@
+{
+  "name": "shadow-system-android",
+  "version": "0.11.0",
+  "private": true,
+  "description": "Native Android wrapper for SHADOW SYSTEM with local-first storage",
+  "scripts": {
+    "build:web": "node scripts/prepare-android.js",
+    "android:sync": "npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}

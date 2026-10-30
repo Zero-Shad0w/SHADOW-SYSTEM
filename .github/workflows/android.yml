@@ -1,0 +1,82 @@
+name: Build SHADOW SYSTEM Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [android-native-local-first]
+    paths:
+      - 'android-native/**'
+      - 'source/SHADOW-SYSTEM-v0.10-CLOUD-SYNC.zip'
+      - '.github/workflows/android.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  android-debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: ''
+
+      - name: Extract existing SHADOW SYSTEM source
+        run: |
+          set -euo pipefail
+          mkdir -p workspace
+          unzip -q source/SHADOW-SYSTEM-v0.10-CLOUD-SYNC.zip -d workspace
+          APP="$GITHUB_WORKSPACE/workspace/shadow-system"
+          test -f "$APP/server.js"
+          test -f "$APP/public/app.js"
+          cp -R "$GITHUB_WORKSPACE/android-native" "$APP/android-native"
+
+      - name: Export clean starter data for first launch
+        run: |
+          set -euo pipefail
+          cd workspace/shadow-system
+          PORT=4199 node server.js >/tmp/shadow-seed-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4199/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS -c /tmp/shadow-seed-cookies             -H 'Content-Type: application/json'             -d '{"username":"Android Starter","email":"android-seed@example.invalid","password":"TemporarySeedPass123"}'             http://127.0.0.1:4199/api/auth/register >/dev/null
+          curl -fsS -b /tmp/shadow-seed-cookies             http://127.0.0.1:4199/api/state > android-native/seed-state.json
+          node -e "const s=require('./android-native/seed-state.json'); if(!Array.isArray(s.exercises)||s.exercises.length<10)process.exit(1); console.log('Starter exercises:',s.exercises.length)"
+
+      - name: Install Capacitor and prepare offline app assets
+        working-directory: workspace/shadow-system/android-native
+        run: |
+          npm install --no-audit --no-fund
+          npm run build:web
+          npx cap add android
+          npx cap sync android
+
+      - name: Build debug APK
+        working-directory: workspace/shadow-system/android-native/android
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Verify APK exists
+        run: |
+          test -s workspace/shadow-system/android-native/android/app/build/outputs/apk/debug/app-debug.apk
+          ls -lh workspace/shadow-system/android-native/android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Android debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHADOW-SYSTEM-Android-debug
+          path: workspace/shadow-system/android-native/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30

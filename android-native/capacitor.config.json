@@ -1,0 +1,7 @@
+{
+  "appId": "com.shadow.system",
+  "appName": "SHADOW SYSTEM",
+  "webDir": "www",
+  "server": { "androidScheme": "https" },
+  "android": { "allowMixedContent": false }
+}
