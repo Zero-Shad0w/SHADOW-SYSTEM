@@ -1,32 +1,34 @@
-# SHADOW SYSTEM — Cloud Sync Foundation
+# SHADOW SYSTEM — Cloud Sync Setup
 
-## Status
-Cloud synchronization is not active in v0.9. This repository contains a starter Supabase schema only. A Supabase project, client/server authentication integration, migration flow, revision-safe synchronization, and cross-device tests are still required.
+## v0.10 status
+SHADOW SYSTEM v0.10 includes optional Supabase email/password cloud authentication and manual snapshot upload/restore in **Settings → Cloud Synchronization**. This cloud identity is separate from the local Hunter login.
 
-## Target architecture
-- Supabase Auth for cloud identity and sessions.
-- PostgreSQL stores one state document per authenticated user.
-- Row Level Security (RLS) restricts each user to their own row.
-- Revision-based compare-and-swap writes prevent silent last-write-wins data loss.
-- Local SQLite remains a working cache; queued local writes retry when connectivity returns.
-- UI exposes last sync, pending changes, conflicts, and retry status.
+## Supabase setup
+1. Open the Supabase project dashboard.
+2. In **SQL Editor**, run the complete migration at `supabase/migrations/0001_cloud_sync.sql`.
+3. In **Authentication → Providers**, ensure Email authentication is enabled.
+4. If email confirmation is enabled, confirm the registration email before attempting cloud login.
+5. Start SHADOW SYSTEM and open **Settings → Cloud Synchronization**.
+6. Register a cloud account or log into an existing one.
+7. On the device containing the data you want to keep, choose **Upload This Device**.
+8. On another device, log into the same cloud account and choose **Restore From Cloud**.
 
-## Setup
-1. Create a Supabase project.
-2. Apply `supabase/migrations/0001_cloud_sync.sql` in the SQL Editor or using the Supabase CLI.
-3. Enable email/password authentication and decide whether email confirmation is required.
-4. Configure project URL and anon/publishable key as client-safe settings.
-5. Keep any service-role key exclusively on a trusted server. Never place it in frontend code, a desktop app, APK, Git, or logs.
+## Data behavior and safety
+- Row Level Security restricts each authenticated Supabase user to their own `hunter_cloud_state` row.
+- Upload replaces that user's cloud snapshot.
+- Restore replaces the current local app account after a confirmation prompt. Download a local backup first.
+- Keep the local `data` folder when updating the application. It contains the SQLite database and is not part of the source release.
+- Never put a Supabase service-role key, database password, or other secret in frontend code, GitHub, or browser storage. The project URL and publishable key are client-side values.
+- Do not expose the local Node server directly to the public internet.
 
-## Required implementation before enabling sync
-- Link local profiles to Supabase Auth identities without uploading local password hashes/plaintext passwords.
-- Provide an explicit first-import flow for existing local Hunter data; never silently overwrite an existing cloud save.
-- Validate payload shape, schema version and size.
-- Implement revision compare-and-swap and conflict recovery; preserve both versions on mismatch.
-- Sync profile, settings, exercises, programmes, workouts, XP, achievements and related metadata.
-- Handle expired sessions, sign-out, offline retries, duplicate requests and account deletion.
-- Test two separate users and prove neither can access the other's records.
-- Use HTTPS, rate limiting and secure deployment before public release.
+## Current limitations
+- This is manual snapshot synchronization, not automatic bidirectional synchronization.
+- There is no automatic background sync, offline write queue, merge engine, or conflict-safe simultaneous editing.
+- Avoid uploading from two devices at the same time; choose one device as the source before uploading.
+- Cloud sync has not been live-verified against the user's Supabase project from this repository workflow. A successful SQL migration is only the database setup step; verify registration, login, upload, and restore in the app.
 
-## Data safety
-Do not commit `data/`, SQLite/WAL/SHM files, JSON backups, `.env`, signing keys, service-role keys or real user exports. The current local account system is not a substitute for cloud identity or internet-facing security.
+## Troubleshooting
+- **Table not found / relation missing:** confirm the migration ran successfully in the correct Supabase project.
+- **Email confirmation required:** confirm the message from Supabase, then return and log in.
+- **Unauthorized / invalid login:** verify the cloud email/password; this is not the local Hunter password.
+- **Restore warning:** export a local backup before proceeding because restore replaces local app records.
