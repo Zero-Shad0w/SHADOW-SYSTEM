@@ -57,3 +57,15 @@ The server defaults to port 4173; set `PORT` to change it.
 ## Release history
 - **v0.9.0** — Shadow Monarch artwork and local multi-account login with per-account profiles and training history.
 - **v0.10.0** — Optional Supabase cloud identity and manual account snapshot upload/restore; service-worker cache and app asset versions updated.
+
+## Automated GitHub release builds
+
+The repository includes a GitHub Actions workflow at `.github/workflows/release.yml`. Once the complete application source is committed to the repository root, each relevant push to `main` will:
+- validate the app files and JavaScript syntax;
+- package a clean ZIP without any personal SQLite database;
+- publish a 30-day Actions artifact and update the rolling GitHub release named **latest**.
+
+The direct download URL will be:
+`https://github.com/Zero-Shad0w/SHADOW-SYSTEM/releases/download/latest/SHADOW-SYSTEM.zip`
+
+**Repository setup status:** the documentation, Supabase migration, and release workflow are committed. The application source and bundled image assets still need to be added before the workflow can produce a release. The workflow intentionally fails its source-validation step rather than publishing an incomplete ZIP.
