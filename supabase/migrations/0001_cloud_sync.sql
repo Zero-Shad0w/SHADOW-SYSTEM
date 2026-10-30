@@ -1,5 +1,6 @@
--- SHADOW SYSTEM cloud sync foundation (Supabase / PostgreSQL)
--- This schema alone does not enable cloud synchronization.
+-- SHADOW SYSTEM v0.10 cloud snapshot table (Supabase / PostgreSQL)
+-- Apply once in the target Supabase project.
+-- This schema is used by the v0.10 manual snapshot client integration.
 
 create table if not exists public.hunter_cloud_state (
   user_id uuid primary key references auth.users(id) on delete cascade,
