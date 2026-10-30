@@ -35,6 +35,7 @@ app = app.replaceAll("try{await cloudAuth('login'", "try{if(!state.data.settings
 app = app.replaceAll("try{await cloudAuth('register'", "try{if(!state.data.settings.cloudSyncEnabled){toast('Enable optional cloud features first');return}await cloudAuth('register'");
 app = app.replaceAll("try{await cloudPush()", "try{if(!state.data.settings.cloudSyncEnabled){toast('Enable optional cloud features first');return}await cloudPush()");
 app = app.replaceAll("try{await cloudPull()", "try{if(!state.data.settings.cloudSyncEnabled){toast('Enable optional cloud features first');return}await cloudPull()");
+app = app.replace("function accountMenu(){const who=state.account?.username||state.data?.profile?.username||'Hunter';", "function accountMenu(){const who=state.account?.username||state.data?.profile?.username||'Hunter';if(nativeMode){modal('LOCAL HUNTER PROFILE',`<div class=\\\"panel\\\"><div class=\\\"eyebrow\\\">THIS DEVICE</div><h2 class=\\\"section-title\\\">${esc(who)}</h2><p class=\\\"subtle\\\">Your training profile is stored locally on this phone. Cloud account options are available in Settings and remain disabled until you opt in.</p></div>`);return;}");
 app = app.replace('SQLite · LOCAL', 'ON-DEVICE DATABASE · LOCAL');
 app = app.replace('INSTALLED PWA', 'NATIVE ANDROID APP');
 fs.writeFileSync(appPath, app, 'utf8');
