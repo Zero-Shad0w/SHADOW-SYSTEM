@@ -1,0 +1,65 @@
+name: Build and publish SHADOW SYSTEM
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server.js'
+      - 'package.json'
+      - 'public/**'
+      - 'supabase/**'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate application source
+        run: |
+          test -f server.js || { echo "::error::server.js is missing from the repository."; exit 1; }
+          test -f public/app.js || { echo "::error::public/app.js is missing from the repository."; exit 1; }
+          test -f public/index.html || { echo "::error::public/index.html is missing from the repository."; exit 1; }
+          test -f START-SHADOW-SYSTEM.bat || { echo "::error::START-SHADOW-SYSTEM.bat is missing from the repository."; exit 1; }
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check server.js
+          node --check public/app.js
+          node --check public/service-worker.js
+
+      - name: Package Windows / Android PWA release
+        run: |
+          mkdir -p dist/shadow-system
+          cp -R server.js package.json README.md CLOUD-SYNC-SETUP.md START-SHADOW-SYSTEM.bat INSTALL-SHADOW-SYSTEM.bat public supabase dist/shadow-system/
+          mkdir -p dist/shadow-system/data
+          printf '%s\n' 'The SQLite database is created automatically on first launch. Keep this folder when updating an existing installation.' > dist/shadow-system/data/README.txt
+          cd dist
+          zip -r SHADOW-SYSTEM.zip shadow-system
+          unzip -t SHADOW-SYSTEM.zip
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHADOW-SYSTEM-Windows-Android-PWA
+          path: dist/SHADOW-SYSTEM.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish rolling GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES='Windows and Android PWA package for SHADOW SYSTEM. Requires Node.js 22.5 or newer. Stop the existing app before updating, extract over the existing folder, keep the data folder, then run START-SHADOW-SYSTEM.bat.'
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest dist/SHADOW-SYSTEM.zip --clobber
+            gh release edit latest --title "SHADOW SYSTEM — Latest Build" --notes "$NOTES"
+          else
+            gh release create latest dist/SHADOW-SYSTEM.zip --title "SHADOW SYSTEM — Latest Build" --notes "$NOTES" --target "${GITHUB_SHA}"
+          fi
