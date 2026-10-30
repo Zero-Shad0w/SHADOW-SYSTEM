@@ -1,0 +1,27 @@
+# Local databases and user data
+/data/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+/backups/
+*.backup
+*.bak
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Generated/dependency files
+node_modules/
+dist/
+build/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
