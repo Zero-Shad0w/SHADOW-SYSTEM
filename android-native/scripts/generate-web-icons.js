@@ -12,7 +12,7 @@ async function main(){
  if(!fs.existsSync(source))throw new Error('Missing selected Shadow System icon artwork');
  const icons=path.join(pub,'icons');fs.mkdirSync(icons,{recursive:true});
  for(const size of [192,512])fs.writeFileSync(path.join(icons,'shadow-system-'+size+'.png'),await sharp(source).resize(size,size,{fit:'contain'}).png().toBuffer());
- const ico=await pngToIco([256,48,32,16].map(size=>sharp(source).resize(size,size,{fit:'contain'}).png().toBuffer()).map(async p=>await p));
+ const ico=await pngToIco(await Promise.all([256,48,32,16].map(size=>sharp(source).resize(size,size,{fit:'contain'}).png().toBuffer())));
  fs.writeFileSync(path.join(pub,'favicon.ico'),await ico);
  const mp=path.join(pub,'manifest.json');
  if(fs.existsSync(mp)){const m=JSON.parse(fs.readFileSync(mp,'utf8'));m.icons=[{src:'/icons/shadow-system-192.png',sizes:'192x192',type:'image/png',purpose:'any'},{src:'/icons/shadow-system-512.png',sizes:'512x512',type:'image/png',purpose:'any maskable'}];fs.writeFileSync(mp,JSON.stringify(m,null,2)+'\\n')}
