@@ -47,9 +47,9 @@ See [CLOUD-SYNC-SETUP.md](CLOUD-SYNC-SETUP.md) for the workflow and limitations.
 
 ## Native Android development
 
-The agreed native Android direction is documented in [ANDROID-NATIVE-PLAN.md](ANDROID-NATIVE-PLAN.md). Android is being designed as a local-first Capacitor application with on-device SQLite. No Android APK is available yet: the current PWA depends on the Windows Node.js API, so a native SQLite adapter and offline Android implementation must be completed and tested before packaging. Optional cloud account creation and synchronization will remain disabled by default and must preserve existing local data when enabled.
+The agreed native Android direction is documented in [ANDROID-NATIVE-PLAN.md](ANDROID-NATIVE-PLAN.md). Android is being designed as a local-first Capacitor application with on-device SQLite. A native Android debug APK is built separately through GitHub Actions. See the installation instructions below. Android is still a prototype and should be treated as a test build rather than a production release. Optional cloud account creation and synchronization will remain disabled by default and must preserve existing local data when enabled.
 
-## Native Android build (in progress)
+## Native Android build
 
 A separate GitHub Actions workflow at `.github/workflows/android.yml` builds a **debug APK** from the existing v0.10 application source and the Capacitor wrapper in `android-native/`. It runs on pushes to the `android-native-local-first` branch or by manual dispatch. The APK is published as a 30-day Actions artifact named `SHADOW-SYSTEM-Android-debug`.
 
@@ -77,7 +77,7 @@ The server defaults to port 4173; set `PORT` to change it.
 
 ## Automated GitHub release builds
 
-The repository includes a GitHub Actions workflow at `.github/workflows/release.yml`. Once the complete application source is committed to the repository root, each relevant push to `main` will:
+The repository includes a GitHub Actions workflow at `.github/workflows/release.yml`. Relevant pushes to `main` build and publish the Windows portable package. The Windows installer workflow builds a native Electron/NSIS setup executable and uploads it to the rolling `latest` GitHub release.
 - validate the app files and JavaScript syntax;
 - package a clean ZIP without any personal SQLite database;
 - publish a 30-day Actions artifact and update the rolling GitHub release named **latest**.
@@ -85,4 +85,108 @@ The repository includes a GitHub Actions workflow at `.github/workflows/release.
 The direct download URL will be:
 `https://github.com/Zero-Shad0w/SHADOW-SYSTEM/releases/download/latest/SHADOW-SYSTEM.zip`
 
-**Repository setup status:** the documentation, Supabase migration, and release workflow are committed. The application source and bundled image assets still need to be added before the workflow can produce a release. The workflow intentionally fails its source-validation step rather than publishing an incomplete ZIP.
+**Release status:** the current `latest` release contains the Windows portable ZIP and the native Windows setup executable. The Android debug APK is published separately as a GitHub Actions artifact from the `android-native-local-first` branch.
+
+
+## First-time user guide (no GitHub experience required)
+
+You do not need to know how to code or use GitHub to install and use SHADOW SYSTEM. GitHub is simply where the official downloads and updates are published.
+
+### 1. Download the app
+
+**Windows PC — recommended for desktop users**
+
+- Download the [SHADOW-SYSTEM Windows installer](https://github.com/Zero-Shad0w/SHADOW-SYSTEM/releases/download/latest/SHADOW-SYSTEM-Setup-1.0.0.exe).
+- Alternatively, download the [portable Windows ZIP](https://github.com/Zero-Shad0w/SHADOW-SYSTEM/releases/download/latest/SHADOW-SYSTEM.zip).
+- You can find both files on the [GitHub Releases page](https://github.com/Zero-Shad0w/SHADOW-SYSTEM/releases/tag/latest).
+
+**Android phone**
+
+- Open the [SHADOW SYSTEM GitHub Actions page](https://github.com/Zero-Shad0w/SHADOW-SYSTEM/actions).
+- Select the latest successful run of the Android workflow on the `android-native-local-first` branch.
+- Scroll to **Artifacts** and download `SHADOW-SYSTEM-Android-debug`.
+- Extract the downloaded artifact if it is a ZIP, then open the APK on your phone and follow Android's installation prompts. You may need to allow installation from the browser or file manager used to download it.
+- Only install APKs downloaded from this official repository.
+
+The Android APK is a debug/test build distributed separately from the Windows release. It is not currently attached to the Windows release page.
+
+### 2. Install on Windows
+
+1. Run `SHADOW-SYSTEM-Setup-1.0.0.exe`.
+2. Follow the setup wizard and choose an installation folder.
+3. Finish installation.
+4. Start **SHADOW SYSTEM** from the Desktop shortcut or Windows Start Menu.
+
+The Windows desktop app opens in its own application window and starts its local training server automatically. You do not need to open a browser or manually start the server.
+
+### 3. First launch and Hunter profile
+
+1. Open SHADOW SYSTEM.
+2. Create your Hunter account or sign in with your existing local account.
+3. Open Settings and add a profile picture if you wish.
+4. Explore the dashboard and exercise library.
+
+Keep your login details safe. Your local Hunter account and optional cloud account are separate.
+
+### 4. Choose a training programme
+
+Choose a programme that matches your training goal:
+
+- **Full Body** — train the major muscle groups.
+- **Core** — focus on abdominal and trunk strength.
+- **Upper Body** — focus on pushing and upper-body strength.
+- **Lower Body** — focus on legs and lower-body strength.
+- **Mobility** — work on movement, flexibility and recovery.
+
+For a new user, start with one programme and build a consistent routine before adding more.
+
+### 5. Complete your first workout
+
+1. Open your active programme or the dashboard.
+2. Check the scheduled exercises, sets and repetitions.
+3. Tap **Tutorial** beside an exercise to open its instructions directly.
+4. Follow the tutorial and perform the movement with controlled technique.
+5. Record the workout when you finish.
+6. Return to the dashboard to review your training progress.
+
+Do not rush repetitions. Use a suitable difficulty level, focus on good form, and stop if you feel sharp pain.
+
+### 6. Understand the dashboard
+
+The dashboard is your Hunter control centre. Depending on your active programmes and progress, it helps you review:
+
+- Upcoming and completed training.
+- Active-programme exercise tutorials with direct Tutorial access.
+- Training progress, activity and achievements.
+- Reminders and your scheduled sessions.
+
+### 7. A simple first-week routine
+
+Use this as a gentle example of how to establish a habit. Follow the selected programme's own schedule and adjust the workload to your current ability.
+
+| Day | Suggested activity |
+| --- | --- |
+| Monday | Full Body |
+| Tuesday | Rest |
+| Wednesday | Full Body |
+| Thursday | Rest |
+| Friday | Full Body |
+| Saturday | Light mobility |
+| Sunday | Rest and review progress |
+
+Rest days are part of training. Beginners should prioritize consistency, recovery and controlled technique over doing as many repetitions as possible.
+
+### 8. Keep your training data safe
+
+- On Windows, keep the existing `data` folder when updating the portable installation. Do not delete it; it contains your local training database.
+- Use the app's backup option before major changes or cloud restores.
+- Cloud synchronization is optional and is not enabled by default on the Android prototype.
+- The v0.10 cloud feature is manual snapshot upload/restore, not automatic two-way synchronization. Read [CLOUD-SYNC-SETUP.md](CLOUD-SYNC-SETUP.md) before using it.
+- Do not uninstall or replace an installation until you have backed up any training data you want to keep.
+
+### Official download links
+
+- [Windows installer (.exe)](https://github.com/Zero-Shad0w/SHADOW-SYSTEM/releases/download/latest/SHADOW-SYSTEM-Setup-1.0.0.exe)
+- [Windows portable ZIP](https://github.com/Zero-Shad0w/SHADOW-SYSTEM/releases/download/latest/SHADOW-SYSTEM.zip)
+- [Android Actions builds and APK artifacts](https://github.com/Zero-Shad0w/SHADOW-SYSTEM/actions)
+- [All GitHub releases](https://github.com/Zero-Shad0w/SHADOW-SYSTEM/releases)
