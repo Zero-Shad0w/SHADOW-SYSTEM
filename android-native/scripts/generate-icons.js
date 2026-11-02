@@ -6,7 +6,7 @@ const root=path.resolve(__dirname,'../..');
 const source=path.join(root,'assets','shadow-system-icon.svg');
 const android=path.join(__dirname,'..','android','app','src','main','res');
 const appRoot=path.resolve(root,'..');
-const publicDir=path.join(appRoot,'public');
+const publicDir=path.join(root,'public');
 async function main(){
  if(!fs.existsSync(source)) throw new Error('Missing assets/shadow-system-icon.svg');
  const sizes={mdpi:48,hdpi:72,xhdpi:96,xxhdpi:144,xxxhdpi:192};
