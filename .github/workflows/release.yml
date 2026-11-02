@@ -18,6 +18,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Extract uploaded application archive
         run: |
           set -euo pipefail
@@ -30,6 +35,12 @@ jobs:
           test -f "$APP/public/app.js" || { echo "::error::The archive does not contain public/app.js."; exit 1; }
           test -f "$APP/public/index.html" || { echo "::error::The archive does not contain public/index.html."; exit 1; }
           test -f "$APP/START-SHADOW-SYSTEM.bat" || { echo "::error::START-SHADOW-SYSTEM.bat is missing."; exit 1; }
+          cp -R "$GITHUB_WORKSPACE/android-native" "$APP/android-native"
+          cp -R "$GITHUB_WORKSPACE/assets" "$APP/assets"
+          cd "$APP/android-native"
+          npm install --no-audit --no-fund
+          node scripts/generate-icons.js
+          cd "$GITHUB_WORKSPACE"
 
       - name: Check JavaScript syntax
         run: |
