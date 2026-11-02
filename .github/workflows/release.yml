@@ -110,7 +110,7 @@ jobs:
           npm install --no-audit --no-fund
           node scripts/generate-web-icons.js
           node scripts/patch-windows-ui.js
-          cd ../..
+          cd "$GITHUB_WORKSPACE"
           mkdir -p "$APP/data"
           printf '%s\\n' 'Training database is stored here. Do not delete this folder when updating.' > "$APP/data/README.txt"
           node --check "$APP/server.js"
