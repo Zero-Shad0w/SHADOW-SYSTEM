@@ -1,0 +1,47 @@
+{
+  "name": "shadow-system",
+  "version": "1.0.0",
+  "description": "SHADOW SYSTEM Hunter Training OS",
+  "main": "electron-main.cjs",
+  "author": "SHADOW SYSTEM",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.shadowsystem.hunter",
+    "productName": "SHADOW SYSTEM",
+    "asar": false,
+    "directories": { "output": "dist" },
+    "files": [
+      "electron-main.cjs",
+      "server.js",
+      "public/**/*",
+      "data/README.txt",
+      "node_modules/**/*",
+      "START-SHADOW-SYSTEM.bat",
+      "LICENSE"
+    ],
+    "extraMetadata": { "main": "electron-main.cjs" },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "public/favicon.ico",
+      "artifactName": "SHADOW-SYSTEM-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SHADOW SYSTEM",
+      "uninstallDisplayName": "SHADOW SYSTEM",
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}
