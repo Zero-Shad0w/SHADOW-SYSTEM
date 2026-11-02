@@ -39,4 +39,5 @@ app = app.replace("function accountMenu(){const who=state.account?.username||sta
 app = app.replace('SQLite · LOCAL', 'ON-DEVICE DATABASE · LOCAL');
 app = app.replace('INSTALLED PWA', 'NATIVE ANDROID APP');
 fs.writeFileSync(appPath, app, 'utf8');
-console.log('Prepared native web assets with local-first IndexedDB persistence.');
+require('./patch-android-ui.js');
+console.log('Prepared native web assets with local-first IndexedDB persistence and Android UI enhancements.');
