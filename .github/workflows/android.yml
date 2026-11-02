@@ -63,8 +63,17 @@ jobs:
           npm install --no-audit --no-fund
           npm run build:web
           npx cap add android
-          node scripts/generate-icons.js
           npx cap sync android
+          node scripts/generate-icons.js
+          echo '--- Android launcher manifest ---'
+          grep -n 'android:icon\|android:roundIcon' android/app/src/main/AndroidManifest.xml
+          echo '--- Generated launcher resources ---'
+          find android/app/src/main/res -maxdepth 2 \( -name 'ic_launcher*' \) -type f -print
+          test -s android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          test -s android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          test -s android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+          grep -q 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
+          grep -q 'android:roundIcon="@mipmap/ic_launcher_round"' android/app/src/main/AndroidManifest.xml
 
       - name: Build debug APK
         working-directory: workspace/shadow-system/android-native/android
