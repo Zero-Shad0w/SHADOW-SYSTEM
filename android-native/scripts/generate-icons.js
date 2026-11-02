@@ -30,6 +30,9 @@ async function main(){
  manifest=manifest.replace(appTag[0],application);
  fs.writeFileSync(manifestPath,manifest,'utf8');
  const drawable=path.join(android,'drawable');fs.mkdirSync(drawable,{recursive:true});
+ const drawableV24=path.join(android,'drawable-v24');
+ const legacyForeground=path.join(drawableV24,'ic_launcher_foreground.xml');
+ if(fs.existsSync(legacyForeground))fs.unlinkSync(legacyForeground);
  fs.writeFileSync(path.join(drawable,'ic_launcher_foreground.png'),await sharp(source).resize(432,432,{fit:'contain'}).png().toBuffer());
  const adaptive=path.join(android,'mipmap-anydpi-v26');fs.mkdirSync(adaptive,{recursive:true});
  const xml='<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@android:color/black"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>';
