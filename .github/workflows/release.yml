@@ -84,3 +84,60 @@ jobs:
           else
             gh release create latest dist/SHADOW-SYSTEM.zip --title "SHADOW SYSTEM — Latest Build" --notes "$NOTES" --target "${GITHUB_SHA}"
           fi
+
+  windows-installer:
+    name: Build native Windows installer
+    runs-on: windows-latest
+    needs: build-and-release
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Extract application and apply Windows features
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p workspace
+          unzip -q source/SHADOW-SYSTEM-v0.10-CLOUD-SYNC.zip -d workspace
+          APP="workspace/shadow-system"
+          test -f "$APP/server.js"
+          test -f "$APP/public/app.js"
+          cp -R android-native "$APP/android-native"
+          cp -R assets "$APP/assets"
+          cp electron-main.cjs "$APP/electron-main.cjs"
+          cp package.json "$APP/package.json"
+          cd "$APP/android-native"
+          npm install --no-audit --no-fund
+          node scripts/generate-web-icons.js
+          node scripts/patch-windows-ui.js
+          cd ../..
+          mkdir -p "$APP/data"
+          printf '%s\\n' 'Training database is stored here. Do not delete this folder when updating.' > "$APP/data/README.txt"
+          node --check "$APP/server.js"
+          node --check "$APP/public/app.js"
+          node --check "$APP/electron-main.cjs"
+
+      - name: Install Electron dependencies and build NSIS installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd workspace/shadow-system
+          npm install --no-audit --no-fund
+          npm run dist:win
+          test -s dist/SHADOW-SYSTEM-Setup-1.0.0.exe
+
+      - name: Upload Windows installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHADOW-SYSTEM-Windows-Installer
+          path: workspace/shadow-system/dist/SHADOW-SYSTEM-Setup-1.0.0.exe
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish Windows installer to latest GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release upload latest workspace/shadow-system/dist/SHADOW-SYSTEM-Setup-1.0.0.exe --clobber
+          gh release edit latest --notes "Windows native desktop installer (NSIS) added. Installs SHADOW SYSTEM as a standalone desktop window with the selected Hunter portrait icon. The app starts its local training server automatically. Also includes Hunter profile photos, direct active-programme tutorials, dashboard tutorials and Shadow Monarch styling. Keep your existing training data folder when updating. Android debug APK remains a separate build artifact."
