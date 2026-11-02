@@ -40,6 +40,7 @@ jobs:
           test -f "$APP/server.js"
           test -f "$APP/public/app.js"
           cp -R "$GITHUB_WORKSPACE/android-native" "$APP/android-native"
+          cp -R "$GITHUB_WORKSPACE/assets" "$APP/assets"
 
       - name: Export clean starter data for first launch
         run: |
@@ -62,6 +63,7 @@ jobs:
           npm install --no-audit --no-fund
           npm run build:web
           npx cap add android
+          node scripts/generate-icons.js
           npx cap sync android
 
       - name: Build debug APK
