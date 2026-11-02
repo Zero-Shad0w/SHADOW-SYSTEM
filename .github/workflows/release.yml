@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'source/**'
+      - 'android-native/scripts/**'
+      - 'android-native/package.json'
+      - 'assets/**'
       - '.github/workflows/release.yml'
   workflow_dispatch:
 
@@ -31,13 +34,26 @@ jobs:
           test -f "$APP/public/index.html" || { echo "::error::The archive does not contain public/index.html."; exit 1; }
           test -f "$APP/START-SHADOW-SYSTEM.bat" || { echo "::error::START-SHADOW-SYSTEM.bat is missing."; exit 1; }
 
+      - name: Apply Android improvements to Windows package
+        run: |
+          set -euo pipefail
+          APP="workspace/shadow-system"
+          cp -R android-native "$APP/android-native"
+          cp -R assets "$APP/assets"
+          cd "$APP/android-native"
+          npm install --no-audit --no-fund
+          node scripts/generate-web-icons.js
+          node scripts/patch-windows-ui.js
+          cd ../..
+          echo "Applied Hunter profile photo, direct programme tutorials, dashboard tutorials, Shadow Monarch theme and selected app icon."
+
       - name: Check JavaScript syntax
         run: |
           node --check workspace/shadow-system/server.js
           node --check workspace/shadow-system/public/app.js
           node --check workspace/shadow-system/public/service-worker.js
 
-      - name: Package Windows / Android PWA release
+      - name: Package Windows PWA release
         run: |
           set -euo pipefail
           mkdir -p dist
@@ -61,7 +77,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          NOTES='Windows and Android PWA package for SHADOW SYSTEM. Requires Node.js 22.5 or newer. Stop the existing app before updating, extract over the existing folder, keep the data folder, then run START-SHADOW-SYSTEM.bat.'
+          NOTES='Windows PWA package for SHADOW SYSTEM. Includes Hunter profile photos, direct active-programme exercise tutorials on the dashboard and programmes page, Shadow Monarch styling, and the selected Hunter portrait as the installed PWA icon. Requires Node.js 22.5 or newer. Stop the existing app before updating, extract over the existing folder, keep the data folder, then run START-SHADOW-SYSTEM.bat.'
           if gh release view latest >/dev/null 2>&1; then
             gh release upload latest dist/SHADOW-SYSTEM.zip --clobber
             gh release edit latest --title "SHADOW SYSTEM — Latest Build" --notes "$NOTES"
