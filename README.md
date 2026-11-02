@@ -2,6 +2,20 @@
 
 Private source repository for SHADOW SYSTEM. The v0.10 release adds an optional Supabase cloud account and manual snapshot upload/restore to the existing local-first training app.
 
+
+<div align="center">
+  <img src="shadow-artwork-github.jpg" alt="SHADOW SYSTEM — Shadow Monarch artwork" width="720">
+  <h2>YOUR BODY. YOUR LIMITS. YOUR LEVEL.</h2>
+  <p><em>Train. Level up. Build your Shadow Army.</em></p>
+</div>
+
+## App screenshots
+
+| Hunter Dashboard | Training Programmes |
+|:---:|:---:|
+| <img src="dashboard-github.jpg" alt="SHADOW SYSTEM dashboard" width="420"> | <img src="programs-github.jpg" alt="SHADOW SYSTEM programmes screen" width="420"> |
+
+
 ## Requirements
 - Windows 10/11 and Node.js 22.5+
 - Modern browser (Edge, Chrome, Firefox or Safari)
