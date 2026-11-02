@@ -1,4 +1,4 @@
-const fs=require('node:fs'),path=require('node:path'),root=path.resolve(__dirname,'..'),file=path.join(root,'public','app.js'),css=path.join(root,'public','styles.css');
+const fs=require('node:fs'),path=require('node:path'),root=path.resolve(__dirname,'../..'),file=path.join(root,'public','app.js'),css=path.join(root,'public','styles.css');
 let a=fs.readFileSync(file,'utf8'),c=fs.readFileSync(css,'utf8');
 a += "\n;(()=>{"+
 "const oldRender=render;render=function(){oldRender();const photo=state.data?.profile?.profileImage||'',av=document.querySelector('#avatar');if(av){av.innerHTML=photo?'<img src=\"'+esc(photo)+'\" alt=\"Hunter\">':(state.data.profile.username||'S').slice(0,1).toUpperCase();av.classList.toggle('has-photo',!!photo)}};"+
